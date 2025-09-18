@@ -1,0 +1,33 @@
+name: Deploy Project
+on: push
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get Code
+        uses: actions/checkout@v4
+      - name: Install Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.2.18
+      - name: Install Dependencies
+        run: bun i
+      - name: Run ESLint
+        run: bun run lint
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get Code
+        uses: actions/checkout@v4
+      - name: Install Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.2.18
+      - name: Install Dependencies
+        run: bun i
+      - name: Build Project
+        run: bun run build
+      - name: List files
+        run: ls -l dist
+      - name: Deploy
+        run: echo "Deploying..."
