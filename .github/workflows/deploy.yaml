@@ -27,7 +27,7 @@ jobs:
 
   deploy:
     needs:
-      - lint
+      - build
     runs-on: ubuntu-latest
     steps:
       - name: download dist folder
