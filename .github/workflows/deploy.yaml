@@ -3,36 +3,80 @@ on:
   push:
   workflow_dispatch:
   pull_request:
+
 jobs:
-  lint:
+  build:
     runs-on: ubuntu-latest
+    # เพิ่ม outputs
+    outputs:
+      build-time: ${{ steps.build-info.outputs.timestamp }}
+      build-hash: ${{ steps.build-info.outputs.hash }}
+      build-status: ${{ steps.build-info.outputs.status }}
+      package-version: ${{ steps.version.outputs.version }}
+
     steps:
       - name: Get Code
         uses: actions/checkout@v4
+
+      - name: Get Package Version
+        id: version
+        run: |
+          VERSION=$(cat package.json | jq -r '.version')
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
       - name: Install Bun
         uses: oven-sh/setup-bun@v2
         with:
           bun-version: 1.2.18
-      - name: Install Dependencies
-        run: bun i
-      - name: Run ESLint
-        run: bun run lint
-  deploy:
-    needs:
-      - lint
-    runs-on: ubuntu-latest
-    steps:
-      - name: Get Code
-        uses: actions/checkout@v4
-      - name: Install Bun
-        uses: oven-sh/setup-bun@v2
+
+      - name: Cache dependencies
+        uses: actions/cache@v4
         with:
-          bun-version: 1.2.18
+          path: |
+            ~/.bun/install/cache
+          key: ${{ runner.os }}-bun-${{ hashFiles('**/bun.lock') }}
+
       - name: Install Dependencies
         run: bun i
-      - name: Build Project
+
+      - name: Build
         run: bun run build
-      - name: List files
-        run: ls -l dist
+
+      - name: Get Build Info
+        id: build-info
+        run: |
+          echo "timestamp=$(date +'%Y-%m-%d %H:%M:%S')" >> $GITHUB_OUTPUT
+          echo "hash=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+          echo "status=success" >> $GITHUB_OUTPUT
+
+      - name: upload dist folder
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: |
+            dist
+            public
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Show Build Info
+        run: |
+          echo "🚀 Deploying version: ${{ needs.build.outputs.package-version }}"
+          echo "📦 Build hash: ${{ needs.build.outputs.build-hash }}"
+          echo "⏰ Built at: ${{ needs.build.outputs.build-time }}"
+          echo "✅ Build status: ${{ needs.build.outputs.build-status }}"
+
+      - name: download dist folder
+        uses: actions/download-artifact@v4
+        with:
+          name: dist
+
+      - name: List all files
+        run: ls -R
+
       - name: Deploy
-        run: echo "Deploying..."
+        run: |
+          echo "Deploying version ${{ needs.build.outputs.package-version }}..."
+          echo "Commit: ${{ needs.build.outputs.build-hash }}"
