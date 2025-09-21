@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   pull_request:
 jobs:
-  lint:
+  build:
     runs-on: ubuntu-latest
     steps:
       - name: Get Code
@@ -15,24 +15,26 @@ jobs:
           bun-version: 1.2.18
       - name: Install Dependencies
         run: bun i
-      - name: Run ESLint
-        run: bun run lint
+      - name: Build
+        run: bun run build
+      - name: upload dist folder
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: |
+            dist
+            public
+
   deploy:
     needs:
       - lint
     runs-on: ubuntu-latest
     steps:
-      - name: Get Code
-        uses: actions/checkout@v4
-      - name: Install Bun
-        uses: oven-sh/setup-bun@v2
+      - name: download dist folder
+        uses: actions/download-artifact@v4
         with:
-          bun-version: 1.2.18
-      - name: Install Dependencies
-        run: bun i
-      - name: Build Project
-        run: bun run build
-      - name: List files
-        run: ls -l dist
+          name: dist
+      - name: List all files
+        run: ls -R
       - name: Deploy
         run: echo "Deploying..."
