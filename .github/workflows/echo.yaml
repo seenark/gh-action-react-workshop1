@@ -1,0 +1,15 @@
+name: Echo Vars and Secrets
+on:
+  workflow_dispatch:
+jobs:
+  echo-vars:
+    runs-on: ubuntu-latest
+    env:
+      API_KEY: ${{ secrets.API_KEY }}
+      BUN_VERSION: ${{ vars.BUN_VERSION }}
+
+    steps:
+      - name: Echo Variables
+        run: echo "$BUN_VERSION"
+      - name: Echo Secrets
+        run: echo "$API_KEY"
