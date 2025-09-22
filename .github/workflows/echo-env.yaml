@@ -1,4 +1,4 @@
-name: Echo Vars and Secrets
+name: Echo Vars and Secrets from Dev and Prod
 on:
   workflow_dispatch:
 jobs:
