@@ -1,0 +1,28 @@
+name: Services example
+on:
+  workflow_dispatch:
+jobs:
+  context:
+    runs-on: ubuntu-latest
+    container:
+      image: oven/bun:1
+
+    services:
+      redis:
+        image: redis
+        env:
+          THIS_ENV: example_env
+        ports:
+          - 6379:6379
+      # surrealdb:
+      #   image: surrealdb/surrealdb
+    env:
+      PORT: 3000
+      REDIST_HOST: redis
+      # REDIST_HOST: localhost
+      REDIST_PORT: 6379
+    steps:
+      - name: Get Code
+        uses: actions/checkout@v4
+      - name: test
+        run: bun run test

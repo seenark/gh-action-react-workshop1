@@ -1,0 +1,20 @@
+name: Install and Cache Dependencies
+description: Install and cache dependencies
+runs:
+  using: composite
+  steps:
+    - name: Install Bun
+      uses: oven-sh/setup-bun@v2
+      with:
+        bun-version: 1.2.8
+
+    - name: Cache dependencies
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.bun/install/cache
+        key: ${{ runner.os }}-bun-${{ hashFiles('**/bun.lock') }}
+
+    - name: Install Dependencies
+      shell: bash # when use `run:` you need to specify shell
+      run: bun i
