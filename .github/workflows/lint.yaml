@@ -13,7 +13,7 @@ jobs:
       - name: Install and cache dependencies
         uses: ./.github/actions/install-and-caching
         with:
-          caching: "false"
+          caching: false
 
       - name: Run ESLint
         run: bun run lint
