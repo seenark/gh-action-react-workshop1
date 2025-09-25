@@ -14,7 +14,7 @@ runs:
         bun-version: 1.2.8
 
     - name: Cache dependencies
-      if: ${{ inputs.caching == 'true' }}
+      if: ${{ fromJSON(inputs.caching) == true }}
       uses: actions/cache@v4
       with:
         path: |
