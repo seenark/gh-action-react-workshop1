@@ -1,5 +1,10 @@
 name: Install and Cache Dependencies
 description: Install and cache dependencies
+inputs:
+  caching:
+    description: Enable caching (default = true)
+    required: false
+    default: "true"
 runs:
   using: composite
   steps:
@@ -9,6 +14,7 @@ runs:
         bun-version: 1.2.8
 
     - name: Cache dependencies
+      if: inputs.caching == "true"
       uses: actions/cache@v4
       with:
         path: |
