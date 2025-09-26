@@ -33,4 +33,4 @@ runs:
     - name: set output cache-hit
       id: set-cache-hit
       shell: bash
-      run: echo "cache-hit=${{ steps.cache-deps.outputs.cache-hit }}" >> $GITHUB_OUTPUT
+      run: echo "cache-hit=${{ steps.cache-deps.outputs.cache-hit || 'false' }}" >> $GITHUB_OUTPUT
