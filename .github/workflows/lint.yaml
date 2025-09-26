@@ -11,9 +11,13 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Install and cache dependencies
+        id: cache-deps
         uses: ./.github/actions/install-and-caching
         with:
           caching: false
+
+      - name: Report cache hit
+        run: echo ${{ steps.cache-deps.outputs.cache-hit }}
 
       - name: Run ESLint
         run: bun run lint
