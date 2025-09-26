@@ -5,6 +5,10 @@ inputs:
     description: Enable caching (default = true)
     required: false
     default: "true"
+outputs:
+  cache-hit:
+    description: Cache hit
+    value: ${{ steps.set-cache-hit.outputs.cache-hit }}
 runs:
   using: composite
   steps:
@@ -14,6 +18,7 @@ runs:
         bun-version: 1.2.8
 
     - name: Cache dependencies
+      id: cache-deps
       if: ${{ fromJSON(inputs.caching) == true }}
       uses: actions/cache@v4
       with:
@@ -24,3 +29,8 @@ runs:
     - name: Install Dependencies
       shell: bash # when use `run:` you need to specify shell
       run: bun i
+
+    - name: set output cache-hit
+      id: set-cache-hit
+      shell: bash
+      run: echo "::set-output name=cache-hit::${{ steps.cache-deps.outputs.cache-hit }}"
