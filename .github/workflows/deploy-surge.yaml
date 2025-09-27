@@ -1,0 +1,54 @@
+name: Deploy Frontend
+on:
+  push:
+    branches:
+      - main
+jobs:
+  build:
+    name: Build Tanstack router
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        id: checkout
+        uses: actions/checkout@v4
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        id: setup-bun
+        with:
+          bun-version: latest
+      - name: Install dependencies
+        id: install
+        run: bun install
+      - name: Build
+        id: build
+        run: bun run build
+      - name: Upload artifacts
+        id: upload-dist
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist-folder
+          path: |
+            dist
+
+  deploy:
+    name: Deploy to surge
+    needs:
+      - build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        id: checkout
+        uses: actions/checkout@v4
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: dist-folder
+          path: ./dist
+      - name: Deploy to surge
+        id: deploy
+        uses: ./.github/actions/deploy-to-surge
+        with:
+          domain: gh-action-react1.surge.sh
+          token: d2f81d98ab5f03e8da3fb6848c6a5f15
+          email: um_oom@hotmail.com
+          dist-folder: ./dist
