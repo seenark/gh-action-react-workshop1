@@ -1,0 +1,39 @@
+name: Deploy Project
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Get Code
+        uses: actions/checkout@v4
+
+      - name: Install and cache dependencies
+        id: cache-deps
+        uses: ./.github/actions/install-and-caching
+
+      - name: Report cache hit
+        run: echo ${{ steps.cache-deps.outputs.cache-hit }}
+
+      - name: Build
+        run: bun run build
+
+      - name: upload dist folder
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: |
+            dist
+            public
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: download and deploy
+        uses: ./.github/workflows/deploy-reusable.yaml
+        with:
+          artifact-name: dist
