@@ -30,10 +30,10 @@ jobs:
             public
 
   deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-      - name: download and deploy
-        uses: ./.github/workflows/deploy-reusable.yaml
-        with:
-          artifact-name: dist
+    needs:
+      - build
+    uses: ./.github/workflows/deploy-reusable.yaml
+    with:
+      artifact-name: dist
+    secrets:
+      some-secret: ${{ secrets.SOME_SECRET }}
